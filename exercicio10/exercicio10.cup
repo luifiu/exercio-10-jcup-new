@@ -1,0 +1,33 @@
+import java_cup.runtime.*;
+
+parser code {:
+    public static void main(String[] args) throws Exception {
+        Lexer2 lexer = new Lexer2(new java.io.FileReader(args[0]));
+        Parser2 parser = new Parser2(lexer);
+        System.out.println("Resultado: " + parser.parse().value);
+    }
+:};
+
+terminal PLUS, MINUS, TIMES, DIVIDE, MOD, POWER;
+terminal LPAREN, RPAREN;
+terminal Integer NUMBER;
+
+non terminal Integer expr;
+
+precedence left PLUS, MINUS;
+precedence left TIMES, DIVIDE, MOD;
+precedence right POWER;
+precedence right UMINUS;
+
+start with expr;
+
+expr ::= expr PLUS expr       {: RESULT = $1 + $3; :}
+       | expr MINUS expr      {: RESULT = $1 - $3; :}
+       | expr TIMES expr      {: RESULT = $1 * $3; :}
+       | expr DIVIDE expr     {: RESULT = $1 / $3; :}
+       | expr MOD expr        {: RESULT = $1 % $3; :}
+       | expr POWER expr      {: RESULT = (int)Math.pow($1, $3); :}
+       | MINUS expr %prec UMINUS {: RESULT = -$2; :}
+       | LPAREN expr RPAREN   {: RESULT = $2; :}
+       | NUMBER               {: RESULT = $1; :}
+       ;
